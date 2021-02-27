@@ -278,7 +278,16 @@ def classify(feature_matrix, theta, theta_0):
     given theta and theta_0. If a prediction is GREATER THAN zero, it should
     be considered a positive classification.
     """
-    # Your code here
+    classified = np.zeros(feature_matrix.shape[0])
+    n = 0
+    for i in feature_matrix: 
+        z = np.dot(i, theta) + theta_0
+        if z > 0:
+            classified[n] = 1
+        else: 
+            classified[n] = -1
+        n = n + 1
+    return classified
     raise NotImplementedError
 
 
@@ -314,7 +323,15 @@ def classifier_accuracy(
     trained classifier on the training data and the second element is the
     accuracy of the trained classifier on the validation data.
     """
-    # Your code here
+    theta, theta_0 = classifier(train_feature_matrix, train_labels, **kwargs)
+    train_preds = classify(train_feature_matrix, theta, theta_0)
+    validation_preds = classify(val_feature_matrix, theta, theta_0)
+
+    train_acc = accuracy(train_preds, train_labels)
+    validation_acc = accuracy(validation_preds, val_labels)
+
+    return train_acc, validation_acc
+
     raise NotImplementedError
 
 
@@ -339,11 +356,17 @@ def bag_of_words(texts):
     Feel free to change this code as guided by Problem 9
     """
     # Your code here
+
+    stop_word_list = []
+    stop_word_file = open("stopwords.txt", "r")
+    for line in stop_word_file:
+        line = line.strip('\n')
+        stop_word_list.append(line)
     dictionary = {} # maps word to unique index
     for text in texts:
         word_list = extract_words(text)
         for word in word_list:
-            if word not in dictionary:
+            if word not in dictionary and word not in stop_word_list:
                 dictionary[word] = len(dictionary)
     return dictionary
 
@@ -367,7 +390,7 @@ def extract_bow_feature_vectors(reviews, dictionary):
         word_list = extract_words(text)
         for word in word_list:
             if word in dictionary:
-                feature_matrix[i, dictionary[word]] = 1
+                feature_matrix[i, dictionary[word]] = feature_matrix[i, dictionary[word]] + 1
     return feature_matrix
 
 
